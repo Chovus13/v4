@@ -1,7 +1,7 @@
 import logging
-from config import TARGET_DIGITS, SPECIAL_DIGITS, PROFIT_TARGET, MIN_WALL_VOLUME, HILL_WALL_VOLUME, MOUNTAIN_WALL_VOLUME, EPIC_WALL_VOLUME
+from config import TARGET_DIGITS, SPECIAL_DIGITS, MIN_WALL_VOLUME, HILL_WALL_VOLUME, MOUNTAIN_WALL_VOLUME, EPIC_WALL_VOLUME
 
-logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def classify_wall_volume(volume):
     if volume >= EPIC_WALL_VOLUME:
@@ -25,8 +25,8 @@ def generate_signals(current_price, walls, trend, rokada_status="off"):
                 signals.append({
                     'type': 'LONG',
                     'entry_price': price,
-                    'stop_loss': round(price - 0.00005, 5),  # 5 pipova
-                    'take_profit': round(price + 0.00010, 5),  # 2:1
+                    'stop_loss': round(price - 0.00005, 5),
+                    'take_profit': round(price + 0.00010, 5),
                     'wall_type': wall_type,
                     'volume': volume
                 })
@@ -35,8 +35,8 @@ def generate_signals(current_price, walls, trend, rokada_status="off"):
                 signals.append({
                     'type': 'SHORT',
                     'entry_price': round(price - 0.00002, 5),
-                    'stop_loss': round(price + 0.00005, 5),  # 5 pipova
-                    'take_profit': round(price - 0.00010, 5),  # 2:1
+                    'stop_loss': round(price + 0.00005, 5),
+                    'take_profit': round(price - 0.00010, 5),
                     'wall_type': wall_type,
                     'volume': volume
                 })
@@ -49,8 +49,8 @@ def generate_signals(current_price, walls, trend, rokada_status="off"):
                 signals.append({
                     'type': 'SHORT',
                     'entry_price': price,
-                    'stop_loss': round(price + 0.00005, 5),  # 5 pipova
-                    'take_profit': round(price - 0.00010, 5),  # 2:1
+                    'stop_loss': round(price + 0.00005, 5),
+                    'take_profit': round(price - 0.00010, 5),
                     'wall_type': wall_type,
                     'volume': volume
                 })
@@ -59,12 +59,12 @@ def generate_signals(current_price, walls, trend, rokada_status="off"):
                 signals.append({
                     'type': 'LONG',
                     'entry_price': round(price + 0.00002, 5),
-                    'stop_loss': round(price - 0.00005, 5),  # 5 pipova
-                    'take_profit': round(price + 0.00010, 5),  # 2:1
+                    'stop_loss': round(price - 0.00005, 5),
+                    'take_profit': round(price + 0.00010, 5),
                     'wall_type': wall_type,
                     'volume': volume
                 })
 
     for signal in signals:
-        logging.info(f"Signal: {signal['type']} na {signal['entry_price']}, zid: {signal['wall_type']} ({signal['volume']} ETH)")
+        logger.info(f"Signal: {signal['type']} na {signal['entry_price']}, zid: {signal['wall_type']} ({signal['volume']} ETH)")
     return signals

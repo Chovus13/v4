@@ -3,16 +3,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: uvicorn main:app --host 0.0.0.0 --port 8000
     volumes:
+      - .:/app
+      - ./html:/html  # Mount html folder to /html
       - ./logs:/app/logs
-      - ./data.json:/app/data.json
-      - ./html:/usr/share/nginx/html:ro
     env_file:
       - .env
     restart: unless-stopped
     networks:
       - bot_network
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
 
   api:
     build:
@@ -20,8 +20,8 @@ services:
       dockerfile: Dockerfile
     command: uvicorn api:app --host 0.0.0.0 --port 8000
     volumes:
+      - .:/app
       - ./logs:/app/logs
-      - ./data.json:/app/data.json
     expose:
       - "8000"
     depends_on:
@@ -35,9 +35,7 @@ services:
     ports:
       - "8888:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./html:/usr/share/nginx/html:ro
-      - ./logs:/var/log/nginx
+      - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - main
       - api
