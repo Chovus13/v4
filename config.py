@@ -1,10 +1,15 @@
-# config.py
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Postavke za zidove (može se čitati iz .env)
+# Binance WebSocket
+BINANCE_WS_URL = "wss://fstream.binance.com/ws"
+
+# Trading par
+PAR = os.getenv('PAR', 'ETH/BTC')
+
+# Postavke za zidove
 WALL_RANGE_SPREAD = float(os.getenv('WALL_RANGE_SPREAD', 0.0005))
 MIN_WALL_VOLUME = float(os.getenv('MIN_WALL_VOLUME', 10.0))
 HILL_WALL_VOLUME = float(os.getenv('HILL_WALL_VOLUME', 50.0))
@@ -18,4 +23,4 @@ VOLUME_PRECISION = int(os.getenv('VOLUME_PRECISION', 2))
 # Strategija
 TARGET_DIGITS = [int(d) for d in os.getenv('TARGET_DIGITS', '2,3,7,8').split(',')]
 SPECIAL_DIGITS = [int(d) for d in os.getenv('SPECIAL_DIGITS', '1,9').split(',')]
-PROFIT_TARGET = float(os.getenv('PROFIT_TARGET', 0.00010))  # 2:1 u odnosu na stop-loss
+PROFIT_TARGET = float(os.getenv('PROFIT_TARGET', 0.00010))
