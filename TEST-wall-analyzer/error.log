@@ -1,0 +1,57 @@
+2025/05/13 04:05:59 [error] 23#23: *1 connect() failed (111: Connection refused) while connecting to upstream, client: 172.18.0.1, server: localhost, request: "GET / HTTP/1.1", upstream: "http://172.18.0.2:8000/", host: "192.168.68.39:8888"
+2025/05/13 04:05:59 [error] 23#23: *1 open() "/usr/share/nginx/html/50x.html" failed (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET / HTTP/1.1", upstream: "http://172.18.0.2:8000/", host: "192.168.68.39:8888"
+2025/05/13 04:24:28 [error] 22#22: *1 connect() failed (111: Connection refused) while connecting to upstream, client: 172.18.0.1, server: localhost, request: "GET /get_data HTTP/1.1", upstream: "http://172.18.0.3:8000/get_data", host: "localhost:8888", referrer: "http://localhost:8888/"
+2025/05/13 04:24:28 [error] 22#22: *1 open() "/usr/share/nginx/html/50x.html" failed (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET /get_data HTTP/1.1", upstream: "http://172.18.0.3:8000/get_data", host: "localhost:8888", referrer: "http://localhost:8888/"
+2025/05/13 04:24:28 [error] 24#24: *4 connect() failed (111: Connection refused) while connecting to upstream, client: 172.18.0.1, server: localhost, request: "GET /ws HTTP/1.1", upstream: "http://172.18.0.2:8000/ws", host: "localhost:8888"
+2025/05/13 04:24:28 [error] 24#24: *4 open() "/usr/share/nginx/html/50x.html" failed (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET /ws HTTP/1.1", upstream: "http://172.18.0.2:8000/ws", host: "localhost:8888"
+2025/05/13 19:38:24 [error] 20#20: *1 connect() failed (111: Connection refused) while connecting to upstream, client: 172.18.0.1, server: localhost, request: "GET /ws HTTP/1.1", upstream: "http://172.18.0.3:8000/ws", host: "localhost:8888"
+2025/05/13 19:38:24 [error] 20#20: *1 open() "/usr/share/nginx/html/50x.html" failed (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET /ws HTTP/1.1", upstream: "http://172.18.0.3:8000/ws", host: "localhost:8888"
+2025/05/13 19:44:20 [error] 20#20: *1 connect() failed (111: Connection refused) while connecting to upstream, client: 172.18.0.1, server: localhost, request: "GET /ws HTTP/1.1", upstream: "http://172.18.0.3:8000/ws", host: "localhost:8888"
+2025/05/13 19:44:20 [error] 20#20: *1 open() "/usr/share/nginx/html/50x.html" failed (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET /ws HTTP/1.1", upstream: "http://172.18.0.3:8000/ws", host: "localhost:8888"
+2025/05/13 19:55:20 [error] 20#20: *1 connect() failed (111: Connection refused) while connecting to upstream, client: 172.18.0.1, server: localhost, request: "GET /ws HTTP/1.1", upstream: "http://172.18.0.3:8000/ws", host: "localhost:8888"
+2025/05/13 19:55:20 [error] 20#20: *1 open() "/usr/share/nginx/html/50x.html" failed (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET /ws HTTP/1.1", upstream: "http://172.18.0.3:8000/ws", host: "localhost:8888"
+2025/05/13 20:04:04 [emerg] 1#1: invalid number of arguments in "set" directive in /etc/nginx/nginx.conf:31
+2025/05/13 20:04:04 [emerg] 1#1: invalid number of arguments in "set" directive in /etc/nginx/nginx.conf:31
+2025/05/13 20:04:05 [emerg] 1#1: invalid number of arguments in "set" directive in /etc/nginx/nginx.conf:31
+2025/05/13 20:04:06 [emerg] 1#1: invalid number of arguments in "set" directive in /etc/nginx/nginx.conf:31
+2025/05/13 20:04:07 [emerg] 1#1: invalid number of arguments in "set" directive in /etc/nginx/nginx.conf:31
+2025/05/13 20:04:09 [emerg] 1#1: invalid number of arguments in "set" directive in /etc/nginx/nginx.conf:31
+2025/05/13 20:04:14 [emerg] 1#1: invalid number of arguments in "set" directive in /etc/nginx/nginx.conf:31
+2025/05/13 20:04:21 [emerg] 1#1: invalid number of arguments in "set" directive in /etc/nginx/nginx.conf:31
+2025/05/13 20:04:34 [emerg] 1#1: invalid number of arguments in "set" directive in /etc/nginx/nginx.conf:31
+2025/05/13 20:05:01 [emerg] 1#1: invalid number of arguments in "set" directive in /etc/nginx/nginx.conf:31
+2025/05/13 20:06:23 [error] 24#24: *1 connect() failed (111: Connection refused) while connecting to upstream, client: 172.18.0.1, server: localhost, request: "GET /ws HTTP/1.1", upstream: "http://172.18.0.2:8000/ws", host: "localhost:8888"
+2025/05/13 20:06:23 [error] 24#24: *1 open() "/usr/share/nginx/html/50x.html" failed (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET /ws HTTP/1.1", upstream: "http://172.18.0.2:8000/ws", host: "localhost:8888"
+2025/05/13 20:12:11 [error] 21#21: *1 connect() failed (111: Connection refused) while connecting to upstream, client: 172.18.0.1, server: localhost, request: "GET /ws HTTP/1.1", upstream: "http://172.18.0.3:8000/ws", host: "localhost:8888"
+2025/05/13 20:12:11 [error] 21#21: *1 open() "/usr/share/nginx/html/50x.html" failed (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET /ws HTTP/1.1", upstream: "http://172.18.0.3:8000/ws", host: "localhost:8888"
+2025/05/13 23:17:12 [error] 21#21: *1 connect() failed (111: Connection refused) while connecting to upstream, client: 172.18.0.1, server: localhost, request: "GET / HTTP/1.1", upstream: "http://172.18.0.3:8000/", host: "192.168.68.39:8787"
+2025/05/13 23:17:12 [error] 21#21: *1 open() "/usr/share/nginx/html/50x.html" failed (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET / HTTP/1.1", upstream: "http://172.18.0.3:8000/", host: "192.168.68.39:8787"
+2025/05/13 23:19:44 [error] 20#20: *1 connect() failed (111: Connection refused) while connecting to upstream, client: 172.18.0.1, server: localhost, request: "GET /ws HTTP/1.1", upstream: "http://172.18.0.3:8000/ws", host: "192.168.68.39:8787"
+2025/05/13 23:19:44 [error] 20#20: *1 open() "/usr/share/nginx/html/50x.html" failed (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET /ws HTTP/1.1", upstream: "http://172.18.0.3:8000/ws", host: "192.168.68.39:8787"
+2025/05/13 23:30:37 [error] 20#20: *1 connect() failed (111: Connection refused) while connecting to upstream, client: 172.18.0.1, server: localhost, request: "GET /ws HTTP/1.1", upstream: "http://172.18.0.3:8000/ws", host: "192.168.68.39:8787"
+2025/05/13 23:30:37 [error] 20#20: *1 open() "/usr/share/nginx/html/50x.html" failed (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET /ws HTTP/1.1", upstream: "http://172.18.0.3:8000/ws", host: "192.168.68.39:8787"
+2025/05/13 23:30:38 [error] 21#21: *3 connect() failed (111: Connection refused) while connecting to upstream, client: 172.18.0.1, server: localhost, request: "GET / HTTP/1.1", upstream: "http://172.18.0.3:8000/", host: "192.168.68.39:8787"
+2025/05/13 23:30:38 [error] 21#21: *3 open() "/usr/share/nginx/html/50x.html" failed (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET / HTTP/1.1", upstream: "http://172.18.0.3:8000/", host: "192.168.68.39:8787"
+2025/05/13 23:32:40 [error] 21#21: *2 connect() failed (111: Connection refused) while connecting to upstream, client: 172.18.0.1, server: localhost, request: "GET /ws HTTP/1.1", upstream: "http://172.18.0.3:8000/ws", host: "192.168.68.39:8787"
+2025/05/13 23:32:40 [error] 21#21: *2 open() "/usr/share/nginx/html/50x.html" failed (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET /ws HTTP/1.1", upstream: "http://172.18.0.3:8000/ws", host: "192.168.68.39:8787"
+2025/05/13 23:45:04 [emerg] 1#1: host not found in upstream "api" in /etc/nginx/nginx.conf:29
+2025/05/13 23:45:09 [emerg] 1#1: host not found in upstream "api" in /etc/nginx/nginx.conf:29
+2025/05/13 23:45:13 [emerg] 1#1: host not found in upstream "api" in /etc/nginx/nginx.conf:29
+2025/05/13 23:45:20 [emerg] 1#1: host not found in upstream "api" in /etc/nginx/nginx.conf:29
+2025/05/13 23:45:24 [emerg] 1#1: host not found in upstream "api" in /etc/nginx/nginx.conf:29
+2025/05/13 23:45:30 [emerg] 1#1: host not found in upstream "api" in /etc/nginx/nginx.conf:29
+2025/05/13 23:45:37 [emerg] 1#1: host not found in upstream "api" in /etc/nginx/nginx.conf:29
+2025/05/13 23:45:49 [emerg] 1#1: host not found in upstream "api" in /etc/nginx/nginx.conf:29
+2025/05/13 23:46:06 [emerg] 1#1: host not found in upstream "api" in /etc/nginx/nginx.conf:29
+2025/05/13 23:46:37 [emerg] 1#1: host not found in upstream "api" in /etc/nginx/nginx.conf:29
+2025/05/13 23:47:36 [emerg] 1#1: host not found in upstream "api" in /etc/nginx/nginx.conf:29
+2025/05/13 23:50:08 [error] 20#20: *1 connect() failed (111: Connection refused) while connecting to upstream, client: 172.18.0.1, server: , request: "GET / HTTP/1.1", upstream: "http://127.0.0.1:8000/", host: "192.168.68.39:8888"
+2025/05/13 23:50:08 [warn] 20#20: *1 upstream server temporarily disabled while connecting to upstream, client: 172.18.0.1, server: , request: "GET / HTTP/1.1", upstream: "http://127.0.0.1:8000/", host: "192.168.68.39:8888"
+2025/05/13 23:50:08 [error] 20#20: *1 connect() failed (111: Connection refused) while connecting to upstream, client: 172.18.0.1, server: , request: "GET / HTTP/1.1", upstream: "http://127.0.0.1:8000/", host: "192.168.68.39:8888"
+2025/05/13 23:50:08 [warn] 20#20: *1 upstream server temporarily disabled while connecting to upstream, client: 172.18.0.1, server: , request: "GET / HTTP/1.1", upstream: "http://127.0.0.1:8000/", host: "192.168.68.39:8888"
+2025/05/13 23:50:08 [error] 20#20: *1 no live upstreams while connecting to upstream, client: 172.18.0.1, server: , request: "GET /favicon.ico HTTP/1.1", upstream: "http://localhost/favicon.ico", host: "192.168.68.39:8888", referrer: "http://192.168.68.39:8888/"
+2025/05/13 23:50:21 [error] 20#20: *1 connect() failed (111: Connection refused) while connecting to upstream, client: 172.18.0.1, server: , request: "GET / HTTP/1.1", upstream: "http://127.0.0.1:8000/", host: "192.168.68.39:8888"
+2025/05/13 23:50:21 [warn] 20#20: *1 upstream server temporarily disabled while connecting to upstream, client: 172.18.0.1, server: , request: "GET / HTTP/1.1", upstream: "http://127.0.0.1:8000/", host: "192.168.68.39:8888"
+2025/05/13 23:50:21 [error] 20#20: *1 connect() failed (111: Connection refused) while connecting to upstream, client: 172.18.0.1, server: , request: "GET / HTTP/1.1", upstream: "http://127.0.0.1:8000/", host: "192.168.68.39:8888"
+2025/05/13 23:50:21 [warn] 20#20: *1 upstream server temporarily disabled while connecting to upstream, client: 172.18.0.1, server: , request: "GET / HTTP/1.1", upstream: "http://127.0.0.1:8000/", host: "192.168.68.39:8888"
+2025/05/13 23:50:21 [error] 20#20: *1 no live upstreams while connecting to upstream, client: 172.18.0.1, server: , request: "GET /favicon.ico HTTP/1.1", upstream: "http://localhost/favicon.ico", host: "192.168.68.39:8888", referrer: "http://192.168.68.39:8888/"
