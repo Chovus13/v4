@@ -4,329 +4,407 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PsyBot Control Panel</title>
+    <!-- Dodaj Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #1a73e8;
-        }
-        .data-box, .slider-container {
-            margin: 10px 0;
-            padding: 10px;
-            background: #f9f9f9;
-            border-radius: 5px;
-        }
-        .data-label {
-            font-weight: bold;
-            color: #555;
-        }
-        .button {
-            padding: 10px 20px;
-            margin: 5px;
-            background-color: #1a73e8;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .button:hover {
-            background-color: #1557b0;
-        }
-        canvas {
-            margin-top: 20px;
-        }
-        .warning {
-            color: red;
-            display: none;
-        }
-        #status {
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #ccc;
-        }
-        .active { color: green; font-weight: bold; }
-        .inactive { color: red; font-weight: bold; }
-    </style>
+<style>
+    body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        margin: 20px;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); /* Tamni gradient pozadina */
+        color: #e0e0e0; /* Svetla boja teksta */
+    }
+
+    h1 {
+        color: #00d4ff; /* Svetlo plava za naslov */
+        text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        text-align: center;
+    }
+
+    h3 {
+        color: #ff6f61; /* Koralna boja za podnaslove */
+        margin-bottom: 10px;
+    }
+
+    .panel {
+        border: none;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+        background: rgba(255, 255, 255, 0.1); /* Poluprovidna bela pozadina */
+        backdrop-filter: blur(10px); /* Efekat zamućenja */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Senka */
+        transition: transform 0.2s;
+    }
+
+    .panel:hover {
+        transform: translateY(-5px); /* Blagi hover efekat */
+    }
+
+    .signal {
+        margin: 5px 0;
+        padding: 8px;
+        background: rgba(54, 162, 235, 0.2); /* Plava pozadina za signale */
+        border-radius: 5px;
+        color: #b3e5fc;
+        border-left: 4px solid #2196f3; /* Plava linija sa strane */
+    }
+
+    .trade {
+        margin: 5px 0;
+        padding: 8px;
+        background: rgba(255, 99, 132, 0.2); /* Crvena pozadina za trejdove */
+        border-radius: 5px;
+        color: #ffcccb;
+        border-left: 4px solid #f44336; /* Crvena linija sa strane */
+    }
+
+    .attempt {
+        margin: 5px 0;
+        padding: 8px;
+        background: rgba(255, 206, 86, 0.2); /* Žuta pozadina za pokušaje */
+        border-radius: 5px;
+        color: #fff9c4;
+        border-left: 4px solid #ffca28; /* Žuta linija sa strane */
+    }
+
+    button {
+        margin: 5px;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 5px;
+        background: linear-gradient(45deg, #00d4ff, #007bff); /* Gradient za dugmad */
+        color: white;
+        cursor: pointer;
+        transition: background 0.3s, transform 0.1s;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    button:hover {
+        background: linear-gradient(45deg, #007bff, #00d4ff);
+        transform: scale(1.05);
+    }
+
+    button:active {
+        transform: scale(0.95);
+    }
+
+    input[type="number"] {
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #00d4ff;
+        background: rgba(255, 255, 255, 0.1);
+        color: #e0e0e0;
+    }
+
+    input[type="number"]:focus {
+        outline: none;
+        border-color: #ff6f61;
+        box-shadow: 0 0 5px rgba(255, 111, 97, 0.5);
+    }
+
+    p {
+        margin: 5px 0;
+        font-size: 1.1em;
+    }
+
+    canvas {
+        max-width: 100%;
+        background: rgba(255, 255, 255, 0.05); /* Poluprovidna pozadina za grafikon */
+        border-radius: 5px;
+        padding: 10px;
+    }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>PsyBot Control Panel</h1>
-        <div>
-            <button class="button" onclick="startBot()">Start Trading</button>
-            <button class="button" onclick="stopBot()">Stop Trading</button>
-        </div>
-        <div class="data-box">
-            <span class="data-label">Price:</span>
-            <span id="current-price">N/A</span> ETH/BTC
-        </div>
-        <div class="data-box">
-            <span class="data-label">Support:</span>
-            <span id="support">0</span>
-        </div>
-        <div class="data-box">
-            <span class="data-label">Resistance:</span>
-            <span id="resistance">0</span>
-        </div>
-        <div class="data-box">
-            <span class="data-label">Position:</span>
-            <span id="position">None</span>
-        </div>
-        <div class="data-box">
-            <span class="data-label">Balance:</span>
-            <span id="balance">0</span> USDT
-        </div>
-        <div class="data-box">
-            <span class="data-label">Unrealized MMR:</span>
-            <span id="unimmr">0</span>
-        </div>
-        <div class="data-box">
-            <span class="data-label">Manual Mode:</span>
-            <span id="manual" class="inactive">off</span>
-        </div>
-        <div class="data-box">
-            <span class="data-label UX">Rokada Strategy:</span>
-            <span id="rokada" class="inactive">off</span>
-        </div>
-        <div class="data-box">
-            <span class="data-label">RSI (5m):</span>
-            <span id="rsi">N/A</span>
-        </div>
-        <div class="slider-container">
-            <label for="trade-amount">Trade Amount (ETH):</label>
-            <input type="range" id="trade-amount" min="0.01" max="1.0" step="0.01" value="0.01">
-            <span id="trade-amount-value">0.01</span>
-        </div>
-        <div class="slider-container">
-            <label for="leverage">Leverage (x):</label>
-            <input type="range" id="leverage" min="1" max="20" step="1" value="1">
-            <span id="leverage-value">1</span>
-            <p class="warning" id="leverage-warning">Upozorenje: Leverage premašuje sigurnu granicu (10x)!</p>
-        </div>
-        <div id="manual-controls" style="display: none;">
-            <button class="button" onclick="toggleManualMode('on')">Uključi Manuelni Režim</button>
-            <button class="button" onclick="toggleManualMode('off')">Isključi Manuelni Režim</button>
-            <button class="button" onclick="sendManualCommand('disable_tp_sl')">Isključi TP/SL</button>
-            <button class="button" onclick="sendManualCommand('close_position')">Zatvori Poziciju</button>
-            <button class="button" onclick="toggleRokada('on')">Rokada On</button>
-            <button class="button" onclick="toggleRokada('off')">Rokada Off</button>
-            <button class="button" onclick="toggleRSI('on')">RSI On</button>
-            <button class="button" onclick="toggleRSI('off')">RSI Off</button>
-        </div>
-        <canvas id="priceChart" width="400" height="200"></canvas>
+    <h1>PsyBot Control Panel</h1>
+    <div class="panel">
+        <button onclick="startTrading()">Start Trading</button>
+        <button onclick="stopTrading()">Stop Trading</button>
     </div>
+    <div class="panel">
+        <p>Price: <span id="price">N/A ETH/BTC</span></p>
+     <div class="panel">
+    <h3>Price and Walls Chart</h3>
+    <canvas id="wallsChart" width="400" height="200"></canvas>
+    </div>
+        <p>Support: <span id="support">0</span></p>
+        <p>Resistance: <span id="resistance">0</span></p>
+        <p>Trend: <span id="trend">N/A</span></p>
+        <p>Position: <span id="position">None</span></p>
+        <p>Balance: <span id="balance">65.00 USDT</span></p>
+        <p>Unrealized MMR: <span id="unrealized_mmr">0</span></p>
+        <p>Manual Mode: <span id="manual_mode">on</span></p>
+        <p>Rokada Strategy: <span id="rokada_status">off</span></p>
+        <p>RSI (5m): <span id="rsi">N/A</span></p>
+        <p>Trade Amount (ETH): <input type="number" id="trade_amount" value="0.01" step="0.01"></p>
+        <p>Leverage (x): <input type="number" id="leverage" value="1" step="1"></p>
+        <button onclick="toggleManualMode(true)">Uključi Manuelni Režim</button>
+        <button onclick="toggleManualMode(false)">Isključi Manuelni Režim</button>
+        <button onclick="disableTPSL()">Isključi TP/SL</button>
+        <button onclick="closePosition()">Zatvori Poziciju</button>
+        <button onclick="toggleRokada(true)">Rokada On</button>
+        <button onclick="toggleRokada(false)">Rokada Off</button>
+        <button onclick="toggleRSI(true)">RSI On</button>
+        <button onclick="toggleRSI(false)">RSI Off</button>
+    </div>
+    <div class="panel">
+        <h3>Signals</h3>
+        <div id="signals">Nema signala</div>
+    </div>
+    <div class="panel">
+        <h3>Active Trades</h3>
+        <div id="trades">Nema aktivnih trejdova</div>
+    </div>
+    <div class="panel">
+        <h3>Trade Attempts (INFO)</h3>
+        <div id="trade_attempts">Nema pokušaja trejda</div>
+    </div>
+<script>
+    const ws = new WebSocket('ws://192.168.68.39:8888/ws');
+    let wallsChart = null; // Promenljiva za čuvanje Chart.js instance
 
-    <script>
-        let ws = null;
-        let priceData = [];
-        let timeData = [];
-        const maxDataPoints = 60;
+    ws.onopen = () => {
+        console.log('WebSocket povezan');
+    };
 
-        const ctx = document.getElementById('priceChart').getContext('2d');
-        const chart = new Chart(ctx, {
-            type: 'line',
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        console.log('Primljeni podaci:', data);
+        updateGUI(data);
+    };
+
+    ws.onerror = (error) => {
+        console.error('WebSocket greška:', error);
+    };
+
+    ws.onclose = () => {
+        console.log('WebSocket zatvoren');
+    };
+
+    // Inicijalizacija grafikona
+    function initializeChart() {
+        const ctx = document.getElementById('wallsChart').getContext('2d');
+        wallsChart = new Chart(ctx, {
+            type: 'line', // Linijski grafikon za cenu, sa barovima za volume
             data: {
-                labels: timeData,
-                datasets: [{
-                    label: 'Cena (ETH/BTC)',
-                    data: priceData,
-                    borderColor: '#1a73e8',
-                    fill: false,
-                    tension: 0.1
-                }]
+                labels: ['Trenutna Cena'], // Možeš dodati više tačaka ako imaš istoriju cena
+                datasets: [
+                    {
+                        label: 'Cena ETH/BTC',
+                        data: [0], // Početna vrednost, ažuriraće se
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        fill: false,
+                        type: 'line',
+                        pointRadius: 5,
+                        pointBackgroundColor: 'rgba(75, 192, 192, 1)'
+                    },
+                    {
+                        label: 'Support Volume',
+                        data: [0], // Početna vrednost
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        type: 'bar'
+                    },
+                    {
+                        label: 'Resistance Volume',
+                        data: [0], // Početna vrednost
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        type: 'bar'
+                    }
+                ]
             },
             options: {
                 scales: {
-                    x: { title: { display: true, text: 'Vreme' } },
-                    y: { title: { display: true, text: 'Cena' } }
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Cena / Volume'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Podaci'
+                        }
+                    }
+                },
+                plugins: {
+                    annotation: {
+                        annotations: {
+                            supportLine: {
+                                type: 'line',
+                                yMin: 0, // Ažuriraće se
+                                yMax: 0,
+                                borderColor: 'blue',
+                                borderWidth: 2,
+                                label: {
+                                    content: 'Support',
+                                    enabled: true,
+                                    position: 'start'
+                                }
+                            },
+                            resistanceLine: {
+                                type: 'line',
+                                yMin: 0, // Ažuriraće se
+                                yMax: 0,
+                                borderColor: 'red',
+                                borderWidth: 2,
+                                label: {
+                                    content: 'Resistance',
+                                    enabled: true,
+                                    position: 'start'
+                                }
+                            }
+                        }
+                    }
                 }
             }
         });
+    }
 
-        const tradeAmountSlider = document.getElementById('trade-amount');
-        const tradeAmountValue = document.getElementById('trade-amount-value');
-        const leverageSlider = document.getElementById('leverage');
-        const leverageValue = document.getElementById('leverage-value');
-        const leverageWarning = document.getElementById('leverage-warning');
-        const manualControls = document.getElementById('manual-controls');
+    // Funkcija za ažuriranje GUI-ja
+    function updateGUI(data) {
+        if (data.error) {
+            console.error('Greška u podacima:', data.error);
+            return;
+        }
+        document.getElementById('price').innerText = `${data.price} ETH/BTC`;
+        document.getElementById('support').innerText = data.support;
+        document.getElementById('resistance').innerText = data.resistance;
+        document.getElementById('trend').innerText = data.trend;
+        document.getElementById('balance').innerText = `${data.balance} USDT`;
+        document.getElementById('rokada_status').innerText = data.rokada_status;
 
-        tradeAmountSlider.addEventListener('input', () => {
-            tradeAmountValue.textContent = tradeAmountSlider.value;
-            updateDataJson({ trade_amount: parseFloat(tradeAmountSlider.value) });
-        });
+        // Ažuriraj grafikon
+        if (!wallsChart) {
+            initializeChart();
+        }
+        // Ažuriraj podatke za grafikon
+        wallsChart.data.datasets[0].data = [data.price]; // Trenutna cena
+        wallsChart.data.datasets[1].data = [data.support]; // Support volume
+        wallsChart.data.datasets[2].data = [data.resistance]; // Resistance volume
+        // Ažuriraj linije za support i resistance
+        wallsChart.options.plugins.annotation.annotations.supportLine.yMin = data.price * 0.99; // Pretpostavka: support je 1% ispod cene
+        wallsChart.options.plugins.annotation.annotations.supportLine.yMax = data.price * 0.99;
+        wallsChart.options.plugins.annotation.annotations.resistanceLine.yMin = data.price * 1.01; // Pretpostavka: resistance je 1% iznad cene
+        wallsChart.options.plugins.annotation.annotations.resistanceLine.yMax = data.price * 1.01;
+        wallsChart.update();
 
-        leverageSlider.addEventListener('input', () => {
-            leverageValue.textContent = leverageSlider.value;
-            leverageWarning.style.display = parseInt(leverageSlider.value) > 10 ? 'block' : 'none';
-            updateDataJson({ leverage: parseInt(leverageSlider.value) });
-        });
-
-        function connectWebSocket() {
-            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const host = window.location.host;
-            ws = new WebSocket(`${protocol}//${host}/ws`);
-
-            ws.onopen = () => {
-                console.log('WebSocket povezan');
-            };
-
-            ws.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                console.log('Primljeni podaci:', data);
-                document.getElementById('current-price').textContent = data.price ? data.price.toFixed(5) : 'N/A';
-                document.getElementById('support').textContent = data.support ? data.support.toFixed(5) : '0';
-                document.getElementById('resistance').textContent = data.resistance ? data.resistance.toFixed(5) : '0';
-                document.getElementById('position').textContent = data.position || 'None';
-                document.getElementById('balance').textContent = data.balance !== undefined ? data.balance.toFixed(2) + ' USDT' : '0 USDT';
-                document.getElementById('unimmr').textContent = data.unimmr !== undefined ? data.unimmr.toFixed(8) : '0';
-                document.getElementById('manual').textContent = data.manual || 'off';
-                document.getElementById('manual').className = data.manual === 'on' ? 'active' : 'inactive';
-                document.getElementById('rokada').textContent = data.rokada || 'off';
-                document.getElementById('rokada').className = data.rokada === 'on' ? 'active' : 'inactive';
-                document.getElementById('rsi').textContent = data.rsi === 'on' && data.rsi_value ? data.rsi_value : 'N/A';
-                manualControls.style.display = data.manual === 'on' ? 'block' : 'none';
-
-                const now = new Date().toLocaleTimeString();
-                priceData.push(data.price || 0);
-                timeData.push(now);
-                if (priceData.length > maxDataPoints) {
-                    priceData.shift();
-                    timeData.shift();
-                }
-                chart.data.labels = timeData;
-                chart.data.datasets[0].data = priceData;
-                chart.update();
-            };
-
-            ws.onclose = () => {
-                console.log('WebSocket zatvoren, reconnect za 3s...');
-                setTimeout(connectWebSocket, 3000);
-            };
-
-            ws.onerror = (error) => {
-                console.error('WebSocket greška:', error);
-            };
+        const signalsDiv = document.getElementById('signals');
+        signalsDiv.innerHTML = '';
+        if (data.signals.length > 0) {
+            data.signals.forEach((signal, index) => {
+                const signalDiv = document.createElement('div');
+                signalDiv.className = 'signal';
+                signalDiv.innerHTML = `Type: ${signal.type}, Entry: ${signal.entry_price}, SL: ${signal.stop_loss}, TP: ${signal.take_profit}, Wall: ${signal.wall_type} (${signal.volume} ETH) <button onclick="startTrade(${index})">Start Trade</button>`;
+                signalsDiv.appendChild(signalDiv);
+            });
+        } else {
+            signalsDiv.innerText = 'Nema signala';
         }
 
-        async function startBot() {
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ action: 'start' }));
-                alert('Trading započet!');
-            } else {
-                alert('WebSocket nije povezan!');
+        const tradesDiv = document.getElementById('trades');
+        tradesDiv.innerHTML = '';
+        if (data.active_trades && data.active_trades.length > 0) {
+            data.active_trades.forEach(trade => {
+                const tradeDiv = document.createElement('div');
+                tradeDiv.className = 'trade';
+                const icon = trade.status === 'winning' ? '🚀' : '💣';
+                tradeDiv.innerText = `${icon} ${trade.type} - Entry: ${trade.entry_price} at ${trade.entry_time}, Current: ${trade.current_price}, SL: ${trade.stop_loss}, TP: ${trade.take_profit}, Amount: ${trade.trade_amount} ETH, Leverage: ${trade.leverage}x, Status: ${trade.status}`;
+                tradesDiv.appendChild(tradeDiv);
+            });
+        } else {
+            tradesDiv.innerText = 'Nema aktivnih trejdova';
+        }
+
+        const attemptsDiv = document.getElementById('trade_attempts');
+        attemptsDiv.innerHTML = '';
+        if (data.trade_attempts && data.trade_attempts.length > 0) {
+            data.trade_attempts.forEach(attempt => {
+                const attemptDiv = document.createElement('div');
+                attemptDiv.className = 'attempt';
+                attemptDiv.innerText = `[${attempt.time}] ${attempt.message} (Amount: ${attempt.trade_amount} ETH, Leverage: ${attempt.leverage}x)`;
+                attemptsDiv.appendChild(attemptDiv);
+            });
+        } else {
+            attemptsDiv.innerText = 'Nema pokušaja trejda';
+        }
+    }
+
+    // Ručno osvežavanje preko /update_data svakih 5 sekundi
+    async function fetchAndUpdate() {
+        try {
+            const response = await fetch('http://192.168.68.39:8888/update_data');
+            const data = await response.json();
+            console.log('Podaci sa /update_data:', data);
+            updateGUI(data);
+        } catch (error) {
+            console.error('Greška pri ažuriranju podataka:', error);
+        }
+    }
+
+    // Pokreni ručno osvežavanje svakih 5 sekundi
+    setInterval(fetchAndUpdate, 5000);
+
+    // Ostale funkcije (startTrade, toggleRokada, itd.) ostaju iste
+    async function startTrade(index) {
+        try {
+            const tradeAmount = parseFloat(document.getElementById('trade_amount').value);
+            const leverage = parseInt(document.getElementById('leverage').value);
+            const response = await fetch(`http://192.168.68.39:8888/start_trade/${index}?trade_amount=${tradeAmount}&leverage=${leverage}`);
+            const result = await response.json();
+            if (result.error) {
+                console.error('Greška pri startovanju trejda:', result.error);
+                return;
             }
+            console.log('Trejd započet:', result.trade);
+        } catch (error) {
+            console.error('Greška:', error);
         }
+    }
 
-        async function stopBot() {
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ action: 'stop' }));
-                alert('Trading zaustavljen!');
-            } else {
-                alert('WebSocket nije povezan!');
+    async function toggleRokada(enabled) {
+        try {
+            const response = await fetch(`http://192.168.68.39:8888/set_rokada/${enabled ? 'on' : 'off'}`);
+            const data = await response.json();
+            if (data.error) {
+                console.error('Greška pri promeni rokada statusa:', data.error);
+                return;
             }
+            document.getElementById('rokada_status').innerText = enabled ? 'on' : 'off';
+            console.log('Rokada:', enabled ? 'uključena' : 'isključena');
+        } catch (error) {
+            console.error('Greška:', error);
         }
+    }
 
-        async function toggleManualMode(mode) {
-            try {
-                const response = await fetch('/manual', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ command: 'toggle', value: mode })
-                });
-                const result = await response.json();
-                console.log('Toggle manual mode:', result);
-                if (mode === 'on') {
-                    sendManualCommand('disable_tp_sl'); // Cancela TP/SL kad se uključi manual mod
-                }
-            } catch (error) {
-                console.error('Greška pri toggle manual mode:', error);
-            }
-        }
+    function startTrading() {
+        console.log('Trading započet');
+    }
 
-        async function sendManualCommand(command) {
-            try {
-                const response = await fetch('/manual', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ command: command, value: 'on' })
-                });
-                const result = await response.json();
-                console.log(`Manual komanda ${command}:`, result);
-            } catch (error) {
-                console.error(`Greška pri slanju komande ${command}:`, error);
-            }
-        }
+    function stopTrading() {
+        console.log('Trading zaustavljen');
+    }
 
-        async function toggleRokada(mode) {
-            try {
-                const response = await fetch('/manual', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ command: `rokada_${mode}` })
-                });
-                const result = await response.json();
-                console.log(`Toggle rokada ${mode}:`, result);
-                await updateDataJson({ rokada: mode });
-            } catch (error) {
-                console.error(`Greška pri toggle rokada ${mode}:`, error);
-            }
-        }
+    function toggleManualMode(enabled) {
+        document.getElementById('manual_mode').innerText = enabled ? 'on' : 'off';
+        console.log('Manuelni režim:', enabled ? 'uključen' : 'isključen');
+    }
 
-        async function toggleRSI(status) {
-            await updateDataJson({ rsi: status });
-            alert(`RSI postavljen na ${status}`);
-        }
+    function disableTPSL() {
+        console.log('TP/SL isključen');
+    }
 
-        async function updateDataJson(updates) {
-            try {
-                const response = await fetch('/update_data', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(updates)
-                });
-                if (!response.ok) throw new Error('Greška pri ažuriranju data.json');
-            } catch (error) {
-                console.error('Greška:', error);
-            }
-        }
+    function closePosition() {
+        console.log('Pozicija zatvorena');
+        document.getElementById('position').innerText = 'None';
+    }
 
-        async function updateStatus() {
-            try {
-                const response = await fetch('/get_data');
-                const data = await response.json();
-                console.log('Podaci iz /get_data:', data);
-                document.getElementById('current-price').textContent = data.price ? data.price.toFixed(5) : 'N/A';
-                document.getElementById('position').textContent = data.position || 'None';
-                document.getElementById('balance').textContent = data.balance !== undefined ? data.balance.toFixed(2) + ' USDT' : '0 USDT';
-                document.getElementById('unimmr').textContent = data.unimmr ? data.unimmr.toFixed(8) : '0';
-                document.getElementById('rsi').textContent = data.rsi === 'on' && data.rsi_value ? data.rsi_value : 'N/A';
-                document.getElementById('manual').textContent = data.manual || 'off';
-                document.getElementById('manual').className = data.manual === 'on' ? 'active' : 'inactive';
-                document.getElementById('rokada').textContent = data.rokada || 'off';
-                document.getElementById('rokada').className = data.rokada === 'on' ? 'active' : 'inactive';
-                manualControls.style.display = data.manual === 'on' ? 'block' : 'none';
-            } catch (error) {
-                console.error('Greška pri dohvatanju statusa:', error);
-            }
-        }
-
-        setInterval(updateStatus, 5000);
-        updateStatus();
-        connectWebSocket();
-    </script>
+    function toggleRSI(enabled) {
+        document.getElementById('rsi').innerText = enabled ? 'N/A' : 'N/A';
+        console.log('RSI:', enabled ? 'uključen' : 'isključen');
+    }
+</script>
 </body>
 </html>

@@ -7,11 +7,11 @@ load_dotenv()
 BINANCE_WS_URL = "wss://fstream.binance.com/ws"
 
 # Trading par
-PAR = os.getenv('PAR', 'ETH/BTC')
+PAR = os.getenv('ETHBTC')
 
 # Postavke za zidove
-WALL_RANGE_SPREAD = float(os.getenv('WALL_RANGE_SPREAD', 0.0005))
-MIN_WALL_VOLUME = float(os.getenv('MIN_WALL_VOLUME', 10.0))
+WALL_RANGE_SPREAD = float(os.getenv('WALL_RANGE_SPREAD', 0.000025))  # povecao na 0.0010, a bilo 0.0005
+MIN_WALL_VOLUME = float(os.getenv('MIN_WALL_VOLUME', 75))  # smanjio na 5 , bilo 10
 HILL_WALL_VOLUME = float(os.getenv('HILL_WALL_VOLUME', 50.0))
 MOUNTAIN_WALL_VOLUME = float(os.getenv('MOUNTAIN_WALL_VOLUME', 100.0))
 EPIC_WALL_VOLUME = float(os.getenv('EPIC_WALL_VOLUME', 500.0))
