@@ -24,6 +24,7 @@ def filter_walls(orderbook, current_price, threshold=0.005):
         cluster_prices = bids[i:i+10, 0]
         cluster_volume = sum(cluster_volumes)
         price_spread = max(cluster_prices) - min(cluster_prices)
+        logger.debug(f"Support cluster {i}: volume={cluster_volume:.2f}, price_spread={price_spread:.5f}")
         if price_spread <= WALL_RANGE_SPREAD and cluster_volume >= MIN_WALL_VOLUME:
             if cluster_volume > threshold * total_bid_volume:
                 avg_price = np.mean(cluster_prices)
@@ -37,6 +38,7 @@ def filter_walls(orderbook, current_price, threshold=0.005):
         cluster_prices = asks[i:i+10, 0]
         cluster_volume = sum(cluster_volumes)
         price_spread = max(cluster_prices) - min(cluster_prices)
+        logger.debug(f"Resistance cluster {i}: volume={cluster_volume:.2f}, price_spread={price_spread:.5f}")
         if price_spread <= WALL_RANGE_SPREAD and cluster_volume >= MIN_WALL_VOLUME:
             if cluster_volume > threshold * total_ask_volume:
                 avg_price = np.mean(cluster_prices)

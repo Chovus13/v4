@@ -18,9 +18,11 @@ def generate_signals(current_price, walls, trend, rokada_status="off"):
         logger.warning("current_price je None, preskačem generisanje signala")
         return signals
 
+    logger.info(f"Support walls: {len(support_walls)}, Resistance walls: {len(resistance_walls)}")
     for price, volume in support_walls:
         last_digit = int(str(round(price, 4))[-1])
         rounded_zero = is_rounded_zero(price)
+        logger.debug(f"Support wall: price={price:.5f}, last_digit={last_digit}, rounded_zero={rounded_zero}")
         if last_digit in TARGET_DIGITS:
             if last_digit in [2, 3]:
                 signal = {
@@ -47,6 +49,7 @@ def generate_signals(current_price, walls, trend, rokada_status="off"):
     for price, volume in resistance_walls:
         last_digit = int(str(round(price, 4))[-1])
         rounded_zero = is_rounded_zero(price)
+        logger.debug(f"Resistance wall: price={price:.5f}, last_digit={last_digit}, rounded_zero={rounded_zero}")
         if last_digit in TARGET_DIGITS:
             if last_digit in [7, 8]:
                 signal = {

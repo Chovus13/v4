@@ -1,27 +1,34 @@
-import time
 import logging
-from fastapi import FastAPI, WebSocket
+import logging.handlers
+import os
+import asyncio
 import aiohttp
+from fastapi import FastAPI, WebSocket
+import json
+import ccxt.async_support as ccxt
+from typing import List
+from dotenv import load_dotenv
+from fastapi.middleware.cors import CORSMiddleware
+from config import AMOUNT, LEVERAGE
 from orderbook import filter_walls, detect_trend
 from levels import generate_signals
-import json
-import asyncio
-from fastapi.middleware.cors import CORSMiddleware
-import ccxt.async_support as ccxt
-import os
-from dotenv import load_dotenv
-from config import AMOUNT, LEVERAGE
+import time
+#import telegram
+
+app = FastAPI()
 
 load_dotenv()
 
-logging.basicConfig(
-    filename='/app/logs/bot.log',
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+exchange = ccxt.binance({
+    'apiKey': os.getenv('API_KEY'),
+    'secret': os.getenv('API_SECRET'),
+    'enableRateLimit': True,
+})
 
-app = FastAPI()
-logger = logging.getLogger(__name__)
+async def main():
+    bot = telegram.Bot("TOKEN")
+    async with bot:
+        print(await bot.get_me())
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,20 +38,179 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-exchange = ccxt.binance({
-    'apiKey': os.getenv('API_KEY'),
-    'secret': os.getenv('API_SECRET'),
-    'enableRateLimit': True,
-    'test': True,  # Ako koristiš testnet
-})
 
-balance = await exchange.fetch_balance()
-logger.info(f"Dostupne valute: {balance.keys()}")
-eth_balance = balance['ETH']['free'] if 'ETH' in balance else 0
 
-rokada_status_global = "off"
+# Globalne promenljive
+ws_clients: List[WebSocket] = []  # Lista aktivnih WebSocket klijenata
 active_trades = []
-cached_data = None  # Keš za podatke
+rokada_status_global = "off"
+cached_data = None
+bot_running = False
+leverage = 2
+trade_amount = 0.06
+
+# Podešavanje logger-a
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+logger.addHandler(handler)
+
+# Funkcija za slanje logova klijentima
+async def send_logs_to_clients(message, level):
+    if not ws_clients:  # Provera da li je lista prazna
+        return
+    log_message = {'type': 'log', 'message': f"{level}: {message}"}
+    for client in ws_clients[:]:  # Kopija liste da izbegnemo greške pri iteraciji
+        try:
+            await client.send_text(json.dumps(log_message))
+        except Exception as e:
+            logger.error(f"Greška pri slanju logova klijentu: {str(e)}")
+            ws_clients.remove(client)  # Uklanjamo klijenta ako je diskonektovan
+
+# WebSocket logging handler
+class WebSocketLoggingHandler(logging.Handler):
+    def emit(self, record):
+        log_entry = self.format(record)
+        level = record.levelname
+        asyncio.create_task(send_logs_to_clients(log_entry, level))
+
+ws_handler = WebSocketLoggingHandler()
+ws_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
+logger.addHandler(ws_handler)
+
+# WebSocket konekcija sa Binance-om
+async def connect_binance_ws():
+    while True:
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.ws_connect('wss://fstream.binance.com/ws/ethbtc@depth@100ms') as ws:
+                    logger.info("Povezan na Binance WebSocket")
+                    while True:
+                        try:
+                            msg = await asyncio.wait_for(ws.receive_json(), timeout=60.0)
+                            if ws.closed:
+                                logger.warning("Binance WebSocket zatvoren, pokušavam ponovno povezivanje")
+                                break
+                            yield msg
+                        except asyncio.TimeoutError:
+                            logger.info("Šaljem ping poruku Binance WebSocket-u")
+                            await ws.ping()
+        except Exception as e:
+            logger.error(f"Greška u Binance WebSocket konekciji: {str(e)}")
+            await asyncio.sleep(5)
+
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    ws_clients.append(websocket)
+    logger.info("Klijentski WebSocket povezan")
+    last_send_time = 0
+    try:
+        async for msg in connect_binance_ws():
+            current_time = time.time()
+            if current_time - last_send_time < 0.5:
+                continue
+
+            if 'bids' in msg and 'asks' in msg:
+                bids = msg['bids']
+                asks = msg['asks']
+            elif 'b' in msg and 'a' in msg:
+                bids = msg['b']
+                asks = msg['a']
+            else:
+                logger.warning(f"Nepoznat format WebSocket poruke: {msg}")
+                continue
+
+            # Provera da li su bids i asks prazni
+            if not bids or not asks:
+                logger.warning(f"Prazni bids ili asks u WebSocket poruci: {msg}")
+                continue
+
+            orderbook = {
+                'bids': [[float(bid[0]), float(bid[1])] for bid in bids],
+                'asks': [[float(ask[0]), float(ask[1])] for ask in asks]
+            }
+
+            # Dodatna provera da li orderbook ima podatke
+            if not orderbook['bids'] or not orderbook['asks']:
+                logger.warning(f"Prazan orderbook nakon konverzije: {orderbook}")
+                continue
+
+            try:
+                current_price = (float(orderbook['bids'][0][0]) + float(orderbook['asks'][0][0])) / 2
+            except (IndexError, ValueError) as e:
+                logger.error(f"Greška pri izračunavanju cene: {str(e)}, orderbook: {orderbook}")
+                continue
+
+            walls = filter_walls(orderbook, current_price)
+            trend = detect_trend(orderbook, current_price)
+            signals = generate_signals(current_price, walls, trend, rokada_status=rokada_status_global)
+
+            exchange.options['defaultType'] = 'future'
+            try:
+                balance = await exchange.fetch_balance()
+                eth_balance = balance['ETH']['free'] if 'ETH' in balance else 0
+                btc_balance = balance['BTC']['free'] if 'BTC' in balance else 0
+                usdt_balance = balance['USDT']['free'] if 'USDT' in balance else 0
+                logger.info(f"Dohvaćen balans: ETH={eth_balance}, BTC={btc_balance}, USDT={usdt_balance}")
+            except Exception as e:
+                logger.error(f"Greška pri dohvatanju balansa: {str(e)}")
+                eth_balance = 0
+                btc_balance = 0
+                usdt_balance = 0
+
+            updated_trades = []
+            for trade in active_trades:
+                trade['current_price'] = current_price
+                trade['status'] = 'winning' if (trade['type'] == 'LONG' and current_price > trade['entry_price']) else 'losing'
+                updated_trades.append(trade)
+
+            response = {
+                'type': 'data',
+                'price': round(current_price, 5),
+                'support': len(walls['support']),
+                'resistance': len(walls['resistance']),
+                'support_walls': walls['support'],
+                'resistance_walls': walls['resistance'],
+                'trend': trend,
+                'signals': signals,
+                'balance': eth_balance,
+                'balance_currency': 'ETH',
+                'extra_balances': {'BTC': btc_balance, 'USDT': usdt_balance},
+                'rokada_status': rokada_status_global,
+                'active_trades': updated_trades,
+                'latency': round((time.time() - current_time) * 1000, 2)
+            }
+            logger.info(f"Šaljem podatke preko WebSocket-a: {response}")
+            await websocket.send_text(json.dumps(response))
+            last_send_time = current_time
+    except Exception as e:
+        logger.error(f"Klijentski WebSocket greška: {str(e)}")
+        raise
+    finally:
+        if websocket in ws_clients:
+            ws_clients.remove(websocket)
+        await websocket.close()
+        logger.info("Klijentski WebSocket zatvoren")
+# Ostali endpoint-ovi (start/stop bot, itd.) ostaju isti
+
+
+
+@app.post('/start_bot')
+async def start_bot(data: dict):
+    global bot_running, leverage, trade_amount
+    leverage = data.get('leverage', 3)
+    trade_amount = data.get('amount', 0.06)
+    if trade_amount < 0.06:
+        return {'status': 'error', 'message': 'Amount must be at least 0.06 ETH'}
+    if bot_running:
+        return {'status': 'error', 'message': 'Bot is already running'}
+    bot_running = True
+    logger.info(f"Bot started with leverage={leverage}, amount={trade_amount}")
+    return {'status': 'success'}
+
 
 def get_rokada_status():
     global rokada_status_global
@@ -72,19 +238,21 @@ async def set_rokada(status: str):
 @app.get('/get_data')
 async def get_data():
     global cached_data
-    if cached_data and (time.time() - cached_data['timestamp'] < 10):
+    if cached_data and (time.time() - cached_data['timestamp'] < 15):  # Povećavamo keširanje na 15 sekundi
         logger.info("Vraćam keširane podatke")
         return cached_data['data']
 
     try:
-        orderbook = await exchange.fetch_order_book('ETH/BTC', limit=1000)
+        orderbook = await exchange.fetch_order_book('ETH/BTC', limit=50)  # Smanjujemo limit na 50
         current_price = (float(orderbook['bids'][0][0]) + float(orderbook['asks'][0][0])) / 2
         walls = filter_walls(orderbook, current_price)
         trend = detect_trend(orderbook, current_price)
         signals = generate_signals(current_price, walls, trend, rokada_status=get_rokada_status())
         exchange.options['defaultType'] = 'future'
         balance = await exchange.fetch_balance()
-        eth_balance = balance['ETH']['free'] if 'ETH' in balance else 0  # Promenjeno sa USDT na ETH
+        eth_balance = balance['ETH']['free'] if 'ETH' in balance else 0
+        btc_balance = balance['BTC']['free'] if 'BTC' in balance else 0
+        usdt_balance = balance['USDT']['free'] if 'USDT' in balance else 0
 
         data = {
             "price": current_price,
@@ -94,8 +262,9 @@ async def get_data():
             "resistance_walls": walls.get("resistance", []),
             "trend": trend,
             "signals": signals,
-            "balance": eth_balance,  # Promenjeno sa usdt_balance na eth_balance
-            "balance_currency": "ETH",  # Dodajemo valutu za frontend
+            "balance": eth_balance,
+            "balance_currency": "ETH",
+            "extra_balances": {"BTC": btc_balance, "USDT": usdt_balance},
             "rokada_status": get_rokada_status(),
             "active_trades": active_trades
         }
@@ -105,6 +274,13 @@ async def get_data():
         logger.error(f"Error fetching data: {e}")
         return {"error": "Failed to fetch data"}
 
+async def fetch_current_data():
+    orderbook = await exchange.fetch_order_book('ETH/BTC', limit=100)
+    current_price = (float(orderbook['bids'][0][0]) + float(orderbook['asks'][0][0])) / 2
+    walls = filter_walls(orderbook, current_price)
+    trend = detect_trend(orderbook, current_price)
+    return current_price, walls, trend
+
 @app.get('/start_trade/{signal_index}')
 async def start_trade(signal_index: int):
     try:
@@ -113,12 +289,12 @@ async def start_trade(signal_index: int):
         await exchange.set_margin_mode('isolated', 'ETH/BTC')
 
         balance = await exchange.fetch_balance()
-        eth_balance = balance['ETH']['free'] if 'ETH' in balance else 0  # Promenjeno sa USDT na ETH
-        if eth_balance < 0.01:  # Minimum 0.01 ETH
+        eth_balance = balance['ETH']['free'] if 'ETH' in balance else 0
+        if eth_balance < 0.01:
             logger.error(f"Nedovoljan balans: {eth_balance} ETH")
             return {'error': f"Nedovoljan balans: {eth_balance} ETH"}
 
-        orderbook = await exchange.fetch_order_book('ETH/BTC', limit=1000)
+        orderbook = await exchange.fetch_order_book('ETH/BTC', limit=100)
         current_price = (float(orderbook['bids'][0][0]) + float(orderbook['asks'][0][0])) / 2
         walls = filter_walls(orderbook, current_price)
         trend = detect_trend(orderbook, current_price)
@@ -159,57 +335,19 @@ async def start_trade(signal_index: int):
         return {'error': str(e)}
 
 
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    logger.info("WebSocket povezan")
-    try:
-        exchange.options['defaultType'] = 'future'
-        while True:
-            orderbook = await exchange.watch_order_book('ETH/BTC', limit=1000)
-            current_price = (float(orderbook['bids'][0][0]) + float(orderbook['asks'][0][0])) / 2
-            walls = filter_walls(orderbook, current_price)
-            trend = detect_trend(orderbook, current_price)
-            signals = generate_signals(current_price, walls, trend)
 
-            balance = await exchange.fetch_balance()
-            eth_balance = balance['ETH']['free'] if 'ETH' in balance else 0  # Promenjeno sa USDT na ETH
 
-            updated_trades = []
-            for trade in active_trades:
-                trade['current_price'] = current_price
-                trade['status'] = 'winning' if (trade['type'] == 'LONG' and current_price > trade['entry_price']) else 'losing'
-                updated_trades.append(trade)
+@app.post('/stop_bot')
+async def stop_bot():
+    global bot_running
+    if not bot_running:
+        return {'status': 'error', 'message': 'Bot is not running'}
+    bot_running = False
+    logger.info("Bot stopped")
+    return {'status': 'success'}
 
-            response = {
-                'type': 'data',
-                'price': round(current_price, 5),
-                'support': len(walls['support']),
-                'resistance': len(walls['resistance']),
-                'support_walls': walls['support'],
-                'resistance_walls': walls['resistance'],
-                'trend': trend,
-                'signals': signals,
-                'balance': eth_balance,  # Promenjeno sa usdt_balance na eth_balance
-                'balance_currency': 'ETH',  # Dodajemo valutu za frontend
-                'rokada_status': rokada_status_global,
-                'active_trades': updated_trades
-            }
-            await websocket.send_text(json.dumps(response))
-            logger.info(f"Poslati podaci preko WebSocket-a: {response}")
-    except Exception as e:
-        logger.error(f"WebSocket greška: {str(e)}")
-        raise
-    finally:
-        await websocket.close()
-        logger.info("WebSocket zatvoren")
 
-async def fetch_current_data():
-    orderbook = await exchange.fetch_order_book('ETH/BTC', limit=1000)
-    current_price = (float(orderbook['bids'][0][0]) + float(orderbook['asks'][0][0])) / 2
-    walls = filter_walls(orderbook, current_price)
-    trend = detect_trend(orderbook, current_price)
-    return current_price, walls, trend
+
 
 @app.on_event("shutdown")
 async def shutdown_event():

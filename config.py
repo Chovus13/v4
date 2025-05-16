@@ -19,5 +19,5 @@ SPECIAL_DIGITS = [int(d) for d in os.getenv('SPECIAL_DIGITS', '1,9').split(',')]
 PROFIT_TARGET = float(os.getenv('PROFIT_TARGET', 0.00010))
 
 # Parametri za trejd
-AMOUNT = float(os.getenv('AMOUNT', 0.033))  # Fiksni Amount za trejd (npr. 0.01 ETH)
+AMOUNT = float(os.getenv('AMOUNT', 0.06))  # Fiksni Amount za trejd (npr. 0.01 ETH)
 LEVERAGE = int(os.getenv('LEVERAGE', 3))  # Fiksni Leverage (npr. 3x)
