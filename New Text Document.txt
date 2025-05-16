@@ -1,0 +1,276 @@
+BIO jeu upljen TEST mode, nisam ni znao da je stavljen :-Dodajemo to jest BRISEM TRUE ...dole ti je log, sto stize sa slicnog linka, vidi iz skripte od kolege,   
+Sada sa ovom konfiguracijom, posto nisam jos nista stigao COPY paste, se desava coneect/discoponeect i REST pise 1500ms a WS je N/A ...nema signala, nema niceg., Ne koristim WIFI, laptop je na CAT 6e kableu :-Dodajemo
+Evo opet onaj deo sa b bids ...stoji mi na 8.8.8.8
+
+ping mi je ekstra ...NEMA GA, do laptopa (Zephyrus G15 sa RTX3070kom :-D u LAN-mrezi....
+
+haos-bot-main-1:     await wrap_app_handling_exceptions(app, session)(scope, receive, send)
+haos-bot-main-1:   File "/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+haos-bot-main-1:     raise exc
+haos-bot-main-1:   File "/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+haos-bot-main-1:     await app(scope, receive, sender)
+haos-bot-main-1:   File "/usr/local/lib/python3.12/site-packages/starlette/routing.py", line 93, in app
+haos-bot-main-1:     await func(session)
+haos-bot-main-1:   File "/usr/local/lib/python3.12/site-packages/fastapi/routing.py", line 383, in app
+haos-bot-main-1:     await dependant.call(**solved_result.values)
+haos-bot-main-1:   File "/app/main.py", line 179, in websocket_endpoint
+haos-bot-main-1:     'bids': [[float(bid[0]), float(bid[1])] for bid in msg['bids']],
+haos-bot-main-1:                                                        ~~~^^^^^^^^
+haos-bot-main-1: KeyError: 'bids'
+haos-bot-main-1: INFO:     connection closed
+haos-bot-main-1: INFO:     ('172.18.0.3', 60784) - "WebSocket /ws" [accepted]
+haos-bot-main-1: INFO:     connection open
+
+PS C:\Users\chovu> ping 192.168.68.30
+
+Pinging 192.168.68.30 with 32 bytes of data:
+Reply from 192.168.68.30: bytes=32 time<1ms TTL=64
+Reply from 192.168.68.30: bytes=32 time<1ms TTL=64
+Reply from 192.168.68.30: bytes=32 time<1ms TTL=64
+Reply from 192.168.68.30: bytes=32 time<1ms TTL=64
+
+Ping statistics for 192.168.68.30:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 0ms, Maximum = 0ms, Average = 0ms
+PS C:\Users\chovu> ping 192.168.68.30 -t
+
+Pinging 192.168.68.30 with 32 bytes of data:
+Reply from 192.168.68.30: bytes=32 time<1ms TTL=64
+Reply from 192.168.68.30: bytes=32 time<1ms TTL=64
+Reply from 192.168.68.30: bytes=32 time<1ms TTL=64
+Reply from 192.168.68.30: bytes=32 time<1ms TTL=64
+Reply from 192.168.68.30: bytes=32 time<1ms TTL=64
+Reply from 192.168.68.30: bytes=32 time<1ms TTL=64
+
+Ping statistics for 192.168.68.30:
+    Packets: Sent = 6, Received = 6, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 0ms, Maximum = 0ms, Average = 0ms
+Control-C
+PS C:\Users\chovu> ping 192.168.68.30 www.binance.com -t
+Bad parameter www.binance.com.
+PS C:\Users\chovu> ping 192.168.68.30 binance.com -t
+Bad parameter binance.com.
+PS C:\Users\chovu> ping fapi.binance.com
+
+Pinging tf-futures-prod-fapi-2-alb-2110254405.ap-northeast-1.elb.amazonaws.com [13.231.51.146] with 32 bytes of data:
+Request timed out.
+Request timed out.
+Request timed out.
+Request timed out.
+
+Ping statistics for 13.231.51.146:
+    Packets: Sent = 4, Received = 0, Lost = 4 (100% loss),
+PS C:\Users\chovu> ping fapi.binance.com/v1
+Ping request could not find host fapi.binance.com/v1. Please check the name and try again.
+PS C:\Users\chovu> ping fapi.binance.com/api/v1
+Ping request could not find host fapi.binance.com/api/v1. Please check the name and try again.
+PS C:\Users\chovu> ping google.com
+
+Pinging google.com [142.251.39.14] with 32 bytes of data:
+Reply from 142.251.39.14: bytes=32 time=25ms TTL=114
+Reply from 142.251.39.14: bytes=32 time=24ms TTL=114
+Reply from 142.251.39.14: bytes=32 time=22ms TTL=114
+Reply from 142.251.39.14: bytes=32 time=25ms TTL=114
+
+Ping statistics for 142.251.39.14:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 22ms, Maximum = 25ms, Average = 24ms
+PS C:\Users\chovu> ping amazon.com
+
+Pinging amazon.com [54.239.28.85] with 32 bytes of data:
+Reply from 54.239.28.85: bytes=32 time=111ms TTL=244
+Reply from 54.239.28.85: bytes=32 time=114ms TTL=244
+Reply from 54.239.28.85: bytes=32 time=113ms TTL=244
+Reply from 54.239.28.85: bytes=32 time=112ms TTL=244
+
+Ping statistics for 54.239.28.85:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 111ms, Maximum = 114ms, Average = 112ms
+PS C:\Users\chovu> ping amazon.de
+
+Pinging amazon.de [176.32.108.185] with 32 bytes of data:
+Reply from 176.32.108.185: bytes=32 time=47ms TTL=238
+Reply from 176.32.108.185: bytes=32 time=48ms TTL=238
+Reply from 176.32.108.185: bytes=32 time=48ms TTL=238
+Reply from 176.32.108.185: bytes=32 time=46ms TTL=238
+
+Ping statistics for 176.32.108.185:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 46ms, Maximum
+	
+	
+	
+
+
+@app.get('/get_data')
+async def get_data():
+    global cached_data
+    if cached_data and (time.time() - cached_data['timestamp'] < 10):
+        logger.info("Vraćam keširane podatke")
+        return cached_data['data']
+
+    try:
+        orderbook = await exchange.fetch_order_book('ETH/BTC', limit=100)
+        current_price = (float(orderbook['bids'][0][0]) + float(orderbook['asks'][0][0])) / 2
+        walls = filter_walls(orderbook, current_price)
+        trend = detect_trend(orderbook, current_price)
+        signals = generate_signals(current_price, walls, trend, rokada_status=get_rokada_status())
+        exchange.options['defaultType'] = 'future'
+        balance = await exchange.fetch_balance()
+        eth_balance = balance['ETH']['free'] if 'ETH' in balance else 0
+
+        data = {
+            "price": current_price,
+            "support": len(walls.get("support", [])),
+            "resistance": len(walls.get("resistance", [])),
+            "support_walls": walls.get("support", []),
+            "resistance_walls": walls.get("resistance", []),
+            "trend": trend,
+            "signals": signals,
+            "balance": eth_balance,
+            "balance_currency": "ETH",
+            "rokada_status": get_rokada_status(),
+            "active_trades": active_trades
+        }
+        cached_data = {'data': data, 'timestamp': time.time()}
+        return data
+    except Exception as e:
+        logger.error(f"Error fetching data: {e}")
+        return {"error": "Failed to fetch data"}
+
+@app.get('/start_trade/{signal_index}')
+async def start_trade(signal_index: int):
+    try:
+        exchange.options['defaultType'] = 'future'
+        await exchange.set_leverage(LEVERAGE, 'ETH/BTC')
+        await exchange.set_margin_mode('isolated', 'ETH/BTC')
+
+        balance = await exchange.fetch_balance()
+        eth_balance = balance['ETH']['free'] if 'ETH' in balance else 0
+        if eth_balance < 0.01:
+            logger.error(f"Nedovoljan balans: {eth_balance} ETH")
+            return {'error': f"Nedovoljan balans: {eth_balance} ETH"}
+
+        orderbook = await exchange.fetch_order_book('ETH/BTC', limit=100)
+        current_price = (float(orderbook['bids'][0][0]) + float(orderbook['asks'][0][0])) / 2
+        walls = filter_walls(orderbook, current_price)
+        trend = detect_trend(orderbook, current_price)
+        signals = generate_signals(current_price, walls, trend)
+
+        if signal_index < 0 or signal_index >= len(signals):
+            logger.error(f"Nevažeći indeks signala: {signal_index}")
+            return {'error': 'Nevažeći indeks signala'}
+
+        signal = signals[signal_index]
+        if signal['type'] == 'LONG':
+            order = await exchange.create_limit_buy_order(
+                'ETH/BTC',
+                AMOUNT,
+                signal['entry_price'],
+                params={'leverage': LEVERAGE}
+            )
+        else:
+            order = await exchange.create_limit_sell_order(
+                'ETH/BTC',
+                AMOUNT,
+                signal['entry_price'],
+                params={'leverage': LEVERAGE}
+            )
+
+        trade = {
+            'type': signal['type'],
+            'entry_price': signal['entry_price'],
+            'stop_loss': signal['stop_loss'],
+            'take_profit': signal['take_profit'],
+            'order': order
+        }
+        active_trades.append(trade)
+        logger.info(f"Započet trejd: {trade}")
+        return {'message': 'Trejd započet', 'trade': trade}
+    except Exception as e:
+        logger.error(f"Greška pri startovanju trejda: {str(e)}")
+        return {'error': str(e)}
+
+async def connect_binance_ws():
+    while True:
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.ws_connect('wss://fstream.binance.com/ws/ethbtc@depth@100ms') as ws:
+                    logger.info("Povezan na Binance WebSocket")
+                    while True:
+                        msg = await ws.receive_json()
+                        if ws.closed:
+                            logger.warning("Binance WebSocket zatvoren, pokušavam ponovno povezivanje")
+                            break
+                        yield msg
+        except Exception as e:
+            logger.error(f"Greška u Binance WebSocket konekciji: {str(e)}")
+            await asyncio.sleep(5)
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    logger.info("Klijentski WebSocket povezan")
+    try:
+        async for msg in connect_binance_ws():
+            orderbook = {
+                'bids': [[float(bid[0]), float(bid[1])] for bid in msg['bids']],
+                'asks': [[float(ask[0]), float(ask[1])] for ask in msg['asks']]
+            }
+            current_price = (float(orderbook['bids'][0][0]) + float(orderbook['asks'][0][0])) / 2
+            walls = filter_walls(orderbook, current_price)
+            trend = detect_trend(orderbook, current_price)
+            signals = generate_signals(current_price, walls, trend)
+
+            exchange.options['defaultType'] = 'future'
+            balance = await exchange.fetch_balance()
+            eth_balance = balance['ETH']['free'] if 'ETH' in balance else 0
+            logger.info(f"Dohvaćen balans: {eth_balance} ETH")  # Dodajemo logovanje
+
+            updated_trades = []
+            for trade in active_trades:
+                trade['current_price'] = current_price
+                trade['status'] = 'winning' if (trade['type'] == 'LONG' and current_price > trade['entry_price']) else 'losing'
+                updated_trades.append(trade)
+
+            response = {
+                'type': 'data',
+                'price': round(current_price, 5),
+                'support': len(walls['support']),
+                'resistance': len(walls['resistance']),
+                'support_walls': walls['support'],
+                'resistance_walls': walls['resistance'],
+                'trend': trend,
+                'signals': signals,
+                'balance': eth_balance,
+                'balance_currency': 'ETH',
+                'rokada_status': rokada_status_global,
+                'active_trades': updated_trades
+            }
+            logger.info(f"Šaljem podatke preko WebSocket-a: {response}")
+            await websocket.send_text(json.dumps(response))
+    except Exception as e:
+        logger.error(f"Klijentski WebSocket greška: {str(e)}")
+        raise
+    finally:
+        await websocket.close()
+        logger.info("Klijentski WebSocket zatvoren")
+
+
+
+#######################################
+...sad sam tek kod ove tvoje recenice:
+
+Pošto je balans 0, trejd nije pokrenut. Kada popravimo balans (prelaskom na stvarni mod ili finansiranjem testnog računa), trejdovi bi trebalo da rade.
+2.4. Smanjenje latencije
+
+....nisam jos kopirao nista od onog ...krecem, 100% ne ocitava dobro sa tih linkova, ...cek mozda nadjem
+
+Received unexpected data: {'e': 'depthUpdate', 'E': 1747367080893, 'T': 1747367080799, 's': 'ETHBTC', 'U': 7538641198271, 'u': 7538641198935, 'pu': 7538641185205, 'b': [['0.024779', '6.92'], ['0.024778', '8.26'], ['0.024777', '5.54'], ['0.024776', '7.55'], ['0.024775', '4.68'], ['0.024774', '6.07'], ['0.024773', '4.78'], ['0.024772', '5.83'], ['0.024771', '5.95'], ['0.024770', '7.43'], ['0.024769', '1.48'], ['0.024768', '2.22'], ['0.024767', '3.71'], ['0.024766', '5.07'], ['0.024765', '3.73'], ['0.024764', '5.39'], ['0.024763', '1.45'], ['0.024762', '3.09'], ['0.024760', '1.26'], ['0.024759', '5.14']], 'a': [['0.024780', '3.69'], ['0.024781', '2.41'], ['0.024782', '3.87'], ['0.024783', '3.70'], ['0.024784', '5.65'], ['0.024785', '4.33'], ['0.024786', '0.84'], ['0.024787', '2.43'], ['0.024788', '0.87'], ['0.024789', '3.79'], ['0.024790', '19.20'], ['0.024791', '0.46'], ['0.024792', '3.09'], ['0.024793', '1.26'], ['0.024794', '3.86'], ['0.024795', '1.17'], ['0.024796', '1.70'], ['0.024797', '1.82'], ['0.024798', '4.77'], ['0.024799', '10.82']]}
+
+
