@@ -1,0 +1,27 @@
+#################################
+Evo log , latenicaj nikada stabilnija....mozda bi mogli da ga MUNJIMO :-DOWN
+1. Resiti Walls, oredrbook.py ili levels.py, LOG fajl se ne upisuje a ni WebSocket info se ne ocitava dobro
+2. Rokada Toggle izgleda da ne radi, uvek u INFO pise off. JOS JE BITNIJE, da li radi kako smo i pricali, LOGIKA 7-8, to jest 2-3  short to jest LONG, preko Orderbook-a i trenda + super oruzje "ROKADA" :-D
+3. Ispisuje Balance, i Extra balances kako treba, ALI NE i CENU para eth/btc, cena mi nekako jako brzo varira, skace od 0.2470-02451, kao da ipisuje cenu ocitanu iz orderbook,....velika razlika
+4. Manuelne komande, ne znam da li ima, ali ja ne smem da idjem, u trejd, dokle god se TREND konstantno menja. i dok se ne belezi nista.
+5. Treba povezati LEVERAGE sa velikim slovima napisanom promenljivom u config.py ili "leverage = 3" malim slovima sto stoji u main.py kao globalna promenjiva (isto i za amount)
+
+###########################
+Bot Data
+Price: 0.02479   -----Cudno se ponasa, pretpostavljam zbog toga sto nema log-fajl samim tim i logiku
+
+Support: N/A
+
+Resistance: N/A
+
+Trend: DOWN   - non stop se menja (znam, ne radi LOG i ne radi proracun za SIGNAL
+
+Balance: 0.05681717 ETH
+
+Extra Balances: BTC: 0.00115289, USDT: N/A
+
+Rokada Status: off  ---uvek OFF
+
+Active Trades: []
+
+Signals: []
