@@ -1,3 +1,4 @@
+import time
 import logging
 from fastapi import FastAPI, WebSocket
 import aiohttp
@@ -10,7 +11,6 @@ import ccxt.async_support as ccxt
 import os
 from dotenv import load_dotenv
 from config import AMOUNT, LEVERAGE
-import time
 
 load_dotenv()
 
@@ -35,12 +35,16 @@ exchange = ccxt.binance({
     'apiKey': os.getenv('API_KEY'),
     'secret': os.getenv('API_SECRET'),
     'enableRateLimit': True,
-    'test': True,
+    'test': True,  # Ako koristiš testnet
 })
+
+balance = await exchange.fetch_balance()
+logger.info(f"Dostupne valute: {balance.keys()}")
+eth_balance = balance['ETH']['free'] if 'ETH' in balance else 0
 
 rokada_status_global = "off"
 active_trades = []
-cached_data = None
+cached_data = None  # Keš za podatke
 
 def get_rokada_status():
     global rokada_status_global
@@ -73,14 +77,14 @@ async def get_data():
         return cached_data['data']
 
     try:
-        orderbook = await exchange.fetch_order_book('ETH/BTC', limit=100)
+        orderbook = await exchange.fetch_order_book('ETH/BTC', limit=1000)
         current_price = (float(orderbook['bids'][0][0]) + float(orderbook['asks'][0][0])) / 2
         walls = filter_walls(orderbook, current_price)
         trend = detect_trend(orderbook, current_price)
         signals = generate_signals(current_price, walls, trend, rokada_status=get_rokada_status())
         exchange.options['defaultType'] = 'future'
         balance = await exchange.fetch_balance()
-        eth_balance = balance['ETH']['free'] if 'ETH' in balance else 0
+        eth_balance = balance['ETH']['free'] if 'ETH' in balance else 0  # Promenjeno sa USDT na ETH
 
         data = {
             "price": current_price,
@@ -90,8 +94,8 @@ async def get_data():
             "resistance_walls": walls.get("resistance", []),
             "trend": trend,
             "signals": signals,
-            "balance": eth_balance,
-            "balance_currency": "ETH",
+            "balance": eth_balance,  # Promenjeno sa usdt_balance na eth_balance
+            "balance_currency": "ETH",  # Dodajemo valutu za frontend
             "rokada_status": get_rokada_status(),
             "active_trades": active_trades
         }
@@ -109,12 +113,12 @@ async def start_trade(signal_index: int):
         await exchange.set_margin_mode('isolated', 'ETH/BTC')
 
         balance = await exchange.fetch_balance()
-        eth_balance = balance['ETH']['free'] if 'ETH' in balance else 0
-        if eth_balance < 0.01:
+        eth_balance = balance['ETH']['free'] if 'ETH' in balance else 0  # Promenjeno sa USDT na ETH
+        if eth_balance < 0.01:  # Minimum 0.01 ETH
             logger.error(f"Nedovoljan balans: {eth_balance} ETH")
             return {'error': f"Nedovoljan balans: {eth_balance} ETH"}
 
-        orderbook = await exchange.fetch_order_book('ETH/BTC', limit=100)
+        orderbook = await exchange.fetch_order_book('ETH/BTC', limit=1000)
         current_price = (float(orderbook['bids'][0][0]) + float(orderbook['asks'][0][0])) / 2
         walls = filter_walls(orderbook, current_price)
         trend = detect_trend(orderbook, current_price)
@@ -154,47 +158,22 @@ async def start_trade(signal_index: int):
         logger.error(f"Greška pri startovanju trejda: {str(e)}")
         return {'error': str(e)}
 
-async def connect_binance_ws():
-    while True:
-        try:
-            async with aiohttp.ClientSession() as session:
-                async with session.ws_connect('wss://fstream.binance.com/ws/ethbtc@depth@100ms') as ws:
-                    logger.info("Povezan na Binance WebSocket")
-                    while True:
-                        msg = await ws.receive_json()
-                        if ws.closed:
-                            logger.warning("Binance WebSocket zatvoren, pokušavam ponovno povezivanje")
-                            break
-                        yield msg
-        except Exception as e:
-            logger.error(f"Greška u Binance WebSocket konekciji: {str(e)}")
-            await asyncio.sleep(5)  # Čekaj 5 sekundi pre ponovnog povezivanja
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    logger.info("Klijentski WebSocket povezan")
+    logger.info("WebSocket povezan")
     try:
         exchange.options['defaultType'] = 'future'
         while True:
-            # Proveri da li je stigla poruka od klijenta
-            try:
-                message = await asyncio.wait_for(websocket.receive_text(), timeout=0.1)
-                data = json.loads(message)
-                if data.get('type') == 'ping':
-                    await websocket.send_text(json.dumps({'type': 'pong'}))
-                    continue
-            except asyncio.TimeoutError:
-                pass  # Nema poruke od klijenta, nastavi sa slanjem podataka
-
-            orderbook = await exchange.fetch_order_book('ETH/BTC', limit=100)
+            orderbook = await exchange.watch_order_book('ETH/BTC', limit=1000)
             current_price = (float(orderbook['bids'][0][0]) + float(orderbook['asks'][0][0])) / 2
             walls = filter_walls(orderbook, current_price)
             trend = detect_trend(orderbook, current_price)
             signals = generate_signals(current_price, walls, trend)
 
             balance = await exchange.fetch_balance()
-            eth_balance = balance['ETH']['free'] if 'ETH' in balance else 0
+            eth_balance = balance['ETH']['free'] if 'ETH' in balance else 0  # Promenjeno sa USDT na ETH
 
             updated_trades = []
             for trade in active_trades:
@@ -211,23 +190,22 @@ async def websocket_endpoint(websocket: WebSocket):
                 'resistance_walls': walls['resistance'],
                 'trend': trend,
                 'signals': signals,
-                'balance': eth_balance,
-                'balance_currency': 'ETH',
+                'balance': eth_balance,  # Promenjeno sa usdt_balance na eth_balance
+                'balance_currency': 'ETH',  # Dodajemo valutu za frontend
                 'rokada_status': rokada_status_global,
                 'active_trades': updated_trades
             }
             await websocket.send_text(json.dumps(response))
             logger.info(f"Poslati podaci preko WebSocket-a: {response}")
-            await asyncio.sleep(5)
     except Exception as e:
-        logger.error(f"Klijentski WebSocket greška: {str(e)}")
+        logger.error(f"WebSocket greška: {str(e)}")
         raise
     finally:
         await websocket.close()
-        logger.info("Klijentski WebSocket zatvoren")
+        logger.info("WebSocket zatvoren")
 
 async def fetch_current_data():
-    orderbook = await exchange.fetch_order_book('ETH/BTC', limit=100)
+    orderbook = await exchange.fetch_order_book('ETH/BTC', limit=1000)
     current_price = (float(orderbook['bids'][0][0]) + float(orderbook['asks'][0][0])) / 2
     walls = filter_walls(orderbook, current_price)
     trend = detect_trend(orderbook, current_price)
