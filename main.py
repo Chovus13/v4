@@ -110,7 +110,7 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         async for msg in connect_binance_ws():
             current_time = time.time()
-            if current_time - last_send_time < 0.5:
+            if current_time - last_send_time < 0.2:  # Smanjujemo interval na 200ms
                 continue
 
             if 'bids' in msg and 'asks' in msg:
@@ -123,7 +123,6 @@ async def websocket_endpoint(websocket: WebSocket):
                 logger.warning(f"Nepoznat format WebSocket poruke: {msg}")
                 continue
 
-            # Provera da li su bids i asks prazni
             if not bids or not asks:
                 logger.warning(f"Prazni bids ili asks u WebSocket poruci: {msg}")
                 continue
@@ -133,7 +132,6 @@ async def websocket_endpoint(websocket: WebSocket):
                 'asks': [[float(ask[0]), float(ask[1])] for ask in asks]
             }
 
-            # Dodatna provera da li orderbook ima podatke
             if not orderbook['bids'] or not orderbook['asks']:
                 logger.warning(f"Prazan orderbook nakon konverzije: {orderbook}")
                 continue
@@ -194,7 +192,6 @@ async def websocket_endpoint(websocket: WebSocket):
             ws_clients.remove(websocket)
         await websocket.close()
         logger.info("Klijentski WebSocket zatvoren")
-# Ostali endpoint-ovi (start/stop bot, itd.) ostaju isti
 
 
 
@@ -203,8 +200,8 @@ async def start_bot(data: dict):
     global bot_running, leverage, trade_amount
     leverage = data.get('leverage', 3)
     trade_amount = data.get('amount', 0.06)
-    if trade_amount < 0.06:
-        return {'status': 'error', 'message': 'Amount must be at least 0.06 ETH'}
+    if trade_amount < 0.05:  # Smanjujemo minimum na 0.05 ETH
+        return {'status': 'error', 'message': 'Amount must be at least 0.05 ETH'}
     if bot_running:
         return {'status': 'error', 'message': 'Bot is already running'}
     bot_running = True
