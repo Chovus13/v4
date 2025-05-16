@@ -1,8 +1,11 @@
-ccxt==4.4.80
+ccxt>=4.4.82
 fastapi[standard]>=0.115.12
 uvicorn[standard]>=0.34.2
 numpy>=1.26.0
 python-dotenv>=1.1.0
-requests
-asyncio
-python-telegram-bot>=21.4
+requests>=2.32.3
+asyncio>=3.4.3
+python-telegram-bot>=22.0
+websockets>=15.0.1
+aiohttp
+psutil

@@ -1,0 +1,78 @@
+
+# @app.get('/start_trade/{signal_index}')
+# async def start_trade(signal_index: int):
+#     logger = logging.getLogger(__name__)
+#     try:
+#         # Dobij signale
+#         orderbook = await exchange.fetch_order_book('ETH/BTC', limit=1000)
+#         current_price = (float(orderbook['bids'][0][0]) + float(orderbook['asks'][0][0])) / 2
+#         walls = filter_walls(orderbook, current_price)
+#         trend = detect_trend(orderbook, current_price)
+#         signals = generate_signals(current_price, walls, trend)
+#
+#         if signal_index < 0 or signal_index >= len(signals):
+#             logger.error(f"Nevažeći indeks signala: {signal_index}")
+#             return {'error': 'Nevažeći indeks signala'}
+#
+#         signal = signals[signal_index]
+#         # Pošalji order na Binance
+#         if signal['type'] == 'LONG':
+#             order = await exchange.create_limit_buy_order(
+#                 'ETH/BTC',
+#                 0.01,
+#                 signal['entry_price']
+#             )
+#         else:  # SHORT
+#             order = await exchange.create_limit_sell_order(
+#                 'ETH/BTC',
+#                 0.01,
+#                 signal['entry_price']
+#             )
+#
+#         trade = {
+#             'type': signal['type'],
+#             'entry_price': signal['entry_price'],
+#             'stop_loss': signal['stop_loss'],
+#             'take_profit': signal['take_profit'],
+#             'entry_time': datetime.utcnow().isoformat(),
+#             'status': 'pending',
+#             'order': order
+#         }
+#         active_trades.append(trade)
+#         logger.info(f"Zapčet trejd: {trade}")
+#
+#         # Pošalji Telegram poruku
+#         message = f"🔔 Novi trejd započet!\nType: {trade['type']}\nEntry Price: {trade['entry_price']}\nSL: {trade['stop_loss']}\nTP: {trade['take_profit']}\nTime: {trade['entry_time']}"
+#         await send_telegram_message(message)
+#
+#         return {'message': 'Trejd započet', 'trade': trade}
+#     except Exception as e:
+#         logger.error(f"Greška pri startovanju trejda: {str(e)}")
+#         return {'error': str(e)}
+#     finally:
+#         # Ne zatvaraj exchange ovde, već na shutdown
+#################################################################################
+
+
+# async def get_data():
+#     try:
+#         orderbook = await exchange.fetch_order_book('ETH/BTC', limit=1000)
+#         current_price = (float(orderbook['bids'][0][0]) + float(orderbook['asks'][0][0])) / 2
+#         walls = filter_walls(orderbook, current_price)
+#         trend = detect_trend(orderbook, current_price)
+#         signals = generate_signals(current_price, walls, trend, rokada_status=get_rokada_status())
+#         return {
+#             "price": current_price,
+#             "support": walls.get("support", 0),
+#             "resistance": walls.get("resistance", 0),
+#             "trend": trend,
+#             "signals": signals,
+#             "balance": 65.0,
+#             "rokada_status": get_rokada_status(),
+#             "active_trades": [],
+#             "trade_attempts": []
+#         }
+#     except Exception as e:
+#         logger.error(f"Error fetching data from Binance: {e}")
+#         await asyncio.sleep(5)
+#         return {"error": "Failed to fetch data from Binance"}
