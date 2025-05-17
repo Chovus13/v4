@@ -20,7 +20,7 @@ def generate_signals(current_price, walls, trend, rokada_status="off"):
 
     logger.info(f"Support walls: {len(support_walls)}, Resistance walls: {len(resistance_walls)}")
     for price, volume in support_walls:
-        last_digit = int(str(round(price, 5))[-1])
+        last_digit = int(str(round(price, 4))[-1])
         rounded_zero = is_rounded_zero(price)
         logger.debug(f"Support wall: price={price:.5f}, last_digit={last_digit}, rounded_zero={rounded_zero}")
         if last_digit in TARGET_DIGITS:
@@ -34,20 +34,20 @@ def generate_signals(current_price, walls, trend, rokada_status="off"):
                 }
                 signals.append(signal)
                 logger.info(f"Signal: {signal}")
-        elif rokada_status == "on" and last_digit in SPECIAL_DIGITS:
-            if last_digit == 1:
+        elif rokada_status == "on" and last_digit in SPECIAL_DIGITS and trend == 'DOWN':
+            if last_digit == 1 and rounded_zero:
                 signal = {
                     'type': 'SHORT',
                     'entry_price': round(price - 0.00002, 5),
-                    'stop_loss': round(price + 0.00003, 5),  # Smanjujemo stop-loss za agresivniji pristup
-                    'take_profit': round(price - PROFIT_TARGET * 1.5, 5),  # Povećavamo take-profit za 1.5x
+                    'stop_loss': round(price + 0.00005, 5),
+                    'take_profit': round(price - PROFIT_TARGET, 5),
                     'volume': volume
                 }
                 signals.append(signal)
                 logger.info(f"Signal: {signal}")
 
     for price, volume in resistance_walls:
-        last_digit = int(str(round(price, 5))[-1])
+        last_digit = int(str(round(price, 4))[-1])
         rounded_zero = is_rounded_zero(price)
         logger.debug(f"Resistance wall: price={price:.5f}, last_digit={last_digit}, rounded_zero={rounded_zero}")
         if last_digit in TARGET_DIGITS:
@@ -55,14 +55,14 @@ def generate_signals(current_price, walls, trend, rokada_status="off"):
                 signal = {
                     'type': 'SHORT',
                     'entry_price': price,
-                    'stop_loss': round(price + 0.00003, 5),  # Smanjujemo stop-loss za agresivniji pristup
-                    'take_profit': round(price - PROFIT_TARGET * 1.5, 5),  # Povećavamo take-profit za 1.5x
+                    'stop_loss': round(price + 0.00005, 5),
+                    'take_profit': round(price - PROFIT_TARGET, 5),
                     'volume': volume
                 }
                 signals.append(signal)
                 logger.info(f"Signal: {signal}")
-        elif rokada_status == "on" and last_digit in SPECIAL_DIGITS:
-            if last_digit == 9:
+        elif rokada_status == "on" and last_digit in SPECIAL_DIGITS and trend == 'UP':
+            if last_digit == 9 and rounded_zero:
                 signal = {
                     'type': 'LONG',
                     'entry_price': round(price + 0.00002, 5),
